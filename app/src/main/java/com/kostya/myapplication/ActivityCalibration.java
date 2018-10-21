@@ -4,14 +4,21 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.webkit.HttpAuthHandler;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import java.net.InetAddress;
+
 public class ActivityCalibration extends AppCompatActivity {
     private WebView mWebView;
+    private InetAddress hostAddress;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,9 +36,27 @@ public class ActivityCalibration extends AppCompatActivity {
         mWebView.getSettings().setAllowFileAccess(true);
         mWebView.setWebViewClient(new MyWebViewClient());
         // указываем страницу загрузки
-        mWebView.loadUrl("file://scales/calibr.html");
-        String url = mWebView.getUrl();
-        url = mWebView.getOriginalUrl();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+        //WebScalesClient.Cmd.WT.getParam();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(sticky = true)
+    public void onEvent(InetAddress event) {
+        hostAddress = event;
+        EventBus.getDefault().removeStickyEvent(InetAddress.class);
+        mWebView.loadUrl("http://"+ hostAddress.getHostAddress() +"/calibr.html");
     }
 
     private class MyWebViewClient extends WebViewClient {

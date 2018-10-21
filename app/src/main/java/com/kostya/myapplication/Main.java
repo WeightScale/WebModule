@@ -12,7 +12,7 @@ public class Main extends Application implements WifiBaseManager.OnWifiBaseManag
     @Override
     public void onCreate() {
         super.onCreate();
-        wifiBaseManager = new WifiBaseManager(this, "scales", this);
+        wifiBaseManager = new WifiBaseManager(this, "KONST", this);
         webScalesClient = new WebScalesClient(this);
         Commands.setInterfaceCommand(webScalesClient);
     }

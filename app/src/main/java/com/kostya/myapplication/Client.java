@@ -16,6 +16,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
@@ -111,7 +112,8 @@ public class Client{
         @Override
         public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
             super.onConnected(websocket, headers);
-            URI uri = websocket.getURI();
+            InetAddress uri = websocket.getSocket().getInetAddress();
+            EventBus.getDefault().postSticky(uri);
             EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.CONNECT, "Connected"));
             //WebScalesClient.Cmd.WT.getParam();
             //Log.i(TAG, "onConnected");
