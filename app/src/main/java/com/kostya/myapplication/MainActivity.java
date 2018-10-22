@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     public Gson gson = new Gson();
     Handler handler = new Handler();
+    InetAddress hostAdsdress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void run(String v) throws Exception {
         Request request = new Request.Builder()
-                .url("http://scl/" + v)
+                .url("http://" + hostAdsdress.getHostAddress() + "/" + v)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -149,6 +151,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(sticky = true)
+    public void onEvent(InetAddress event) {
+        hostAdsdress = event;
     }
 
     @Subscribe
