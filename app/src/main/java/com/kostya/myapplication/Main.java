@@ -12,7 +12,7 @@ public class Main extends Application implements WifiBaseManager.OnWifiBaseManag
     @Override
     public void onCreate() {
         super.onCreate();
-        wifiBaseManager = new WifiBaseManager(this, "KONST", this);
+        wifiBaseManager = new WifiBaseManager(this, "TP-LINK_C26E", this);
         webScalesClient = new WebScalesClient(this);
         Commands.setInterfaceCommand(webScalesClient);
     }
