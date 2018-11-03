@@ -29,7 +29,7 @@ import javax.net.ssl.SSLContext;
 public class Client{
     ObjectCommand response;
     //List<BasicNameValuePair> extraHeaders = Collections.singletonList(new BasicNameValuePair("Cookie", "session=abcd"));
-    Handler handler = new Handler();
+    private Handler handler = new Handler();
     private AtomicBoolean working;
     private InetSocketAddress inetSocketAddress;
     private MessageListener listener;
@@ -38,13 +38,6 @@ public class Client{
     private static final int TIME_OUT_CONNECT = 5000; /** Время в милисекундах. */
     private static final int TIME_PING_INTERVAL = 5000;
     private static final String TAG = "Websocket";
-
-    //public abstract void killWorkingThread();
-    //public abstract void restartWorkingThread();
-    //public abstract void write(String data);
-    //public abstract ObjectCommand sendCommand(Commands cmd);
-    //protected abstract boolean writeByte(byte ch);
-    //protected abstract int getByte();
 
     Client(MessageListener listener, String host){
         this.host = "ws://"+host+"/ws";
@@ -73,7 +66,7 @@ public class Client{
                         //ws.setMissingCloseFrameAllowed(true);
                         //ws.setPingSenderName("Scales");
                         ws.connectAsynchronously();
-                    } catch (IOException /*| NoSuchAlgorithmException*/ e) {
+                    } catch (IOException e) {
                         //EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.ERROR, e.toString()));
                     }
                 }
@@ -120,14 +113,12 @@ public class Client{
         public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
             super.onConnected(websocket, headers);
             InetAddress uri = websocket.getSocket().getInetAddress();
-            //EventBus.getDefault().removeStickyEvent(InetAddress.class);
-            //EventBus.getDefault().postSticky(uri);
             if (!uri.getHostAddress().equals(Main.HOST)){
                 Main.HOST = uri.getHostAddress();
-                ws.disconnect(10);
+                websocket.disconnect(10);
             }else {
                 EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.CONNECT, "Connected"));
-                ws.setPingInterval(TIME_PING_INTERVAL);
+                websocket.setPingInterval(TIME_PING_INTERVAL);
             }
         }
 
@@ -140,10 +131,6 @@ public class Client{
         @Override
         public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
             super.onError(websocket,cause);
-            //Log.i(TAG, "Error -->" + cause.getMessage());
-            //EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.ERROR, cause.toString()));
-
-            //reconnect();
         }
 
         @Override
@@ -151,7 +138,7 @@ public class Client{
             super.onDisconnected(websocket,serverCloseFrame,clientCloseFrame,closedByServer);
             //Log.i(TAG, "onDisconnected");
             //EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.DISCONNECT, "Disconnected"));
-            ws.setPingInterval(0);
+            websocket.setPingInterval(0);
             if (closedByServer) {
                 reconnect();
             }

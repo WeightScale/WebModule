@@ -76,9 +76,4 @@ public class Main extends Application implements WifiBaseManager.OnWifiBaseManag
     public void onWiFiDisconnect() {
         BackgroundManager.get(this).unregisterListener(appActivityListener);
     }
-
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-    }
 }

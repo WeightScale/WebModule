@@ -40,12 +40,6 @@ public class ActivityCalibration extends AppCompatActivity {
         // включаем поддержку JavaScript
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.resumeTimers();
-        //boolean b = mWebView.getSettings().getAllowContentAccess();
-        //b = mWebView.getSettings().getAllowFileAccessFromFileURLs();
-        //mWebView.getSettings().setAllowFileAccessFromFileURLs(true);
-        //b = mWebView.getSettings().getAllowUniversalAccessFromFileURLs();
-        //mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        //mWebView.getSettings().setAllowFileAccess(true);
         mWebView.setWebViewClient(new MyWebViewClient());
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.loadUrl("http://"+ Main.HOST +"/calibr.html");
@@ -95,38 +89,13 @@ public class ActivityCalibration extends AppCompatActivity {
         super.onStop();
         //EventBus.getDefault().unregister(this);
     }
-
-    /*@Subscribe(sticky = true)
-    public void onEvent(InetAddress event) {
-        hostAddress = event;
-        mWebView.loadUrl("http://"+ hostAddress.getHostAddress() +"/calibr.html");
-    }*/
-
-    /*private class MyWebChromeClient extends WebChromeClient{
-        @Override
-        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-            return super.onJsAlert(view, url, message, result);
-        }
-
-        @Override
-        public boolean onJsConfirm(WebView view, String url, String message, JsResult result) {
-            return super.onJsConfirm(view,url,message,result);
-        }
-
-
-    }*/
-
     private class MyWebViewClient extends WebViewClient {
         private WebView myView;
         private HttpAuthHandler httpAuthHandler;
-        private String host;
-        private String realm;
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url){
-            //view.loadUrl(url);
             finish();
-            //return false;
             return true;
         }
 
@@ -134,8 +103,6 @@ public class ActivityCalibration extends AppCompatActivity {
         public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
             this.httpAuthHandler = handler;
             this.myView = view;
-            this.host = host;
-            this.realm = realm;
             final EditText usernameInput = new EditText(ActivityCalibration.this);
             usernameInput.setHint("Username");
 

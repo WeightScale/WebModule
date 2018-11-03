@@ -26,13 +26,13 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
     private Context context;
     private Settings settings;
 
-    public Gson gson;
+    private Gson gson;
     private Handler socketConnectionHandler;
     private ResponseCommand response;
-    protected static final String TAG = "WebScalesClient";
+    private static final String TAG = "WebScalesClient";
 
 
-    public WebScalesClient(Context context) {
+    WebScalesClient(Context context) {
         this.context = context;
         settings = new Settings(context/*, Main.SETTINGS*/);
         socketConnectionHandler = new Handler();
@@ -47,7 +47,7 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
         socketConnectionHandler.removeCallbacks(checkConnectionRunnable);
     }
 
-    public boolean isConnected() {
+    boolean isConnected() {
         return clientWebSocket != null &&
                 clientWebSocket.getConnection() != null &&
                 clientWebSocket.getConnection().isOpen();
@@ -64,19 +64,15 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
         }finally {
             startCheckConnection();
         }
-
-
     };
 
-    public void openConnection() {
+    void openConnection() {
         if (clientWebSocket != null)
             clientWebSocket.close();
         try {
             //clientWebSocket = new Client(this, BuildConfig.SOCKET_URL + Preferences.getManager().getUserId());
             clientWebSocket = new Client(this, Main.HOST);
             clientWebSocket.connect();
-            //Log.i("Websocket", "Socket connected by user " + Preferences.getManager().getUserId());
-            Log.i("Websocket", "Socket connected by user " + "192.168.1.8");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,7 +80,7 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
         startCheckConnection();
     }
 
-    public void closeConnection() {
+    void closeConnection() {
         if (clientWebSocket != null) {
             clientWebSocket.close();
             clientWebSocket = null;
@@ -95,20 +91,15 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
 
     @Override
     public void onSocketMessage(String message) {
-        //EventBus.getDefault().post(gson.fromJson(message, RealTimeEvent.class));
         try {
             JSONObject jsonObject = new JSONObject(message);
             if (jsonObject.has("cmd")){
                 switch (jsonObject.getString("cmd")){
                     case "swt":
-                        //Log.i(TAG, jsonObject.toString());
                         EventBus.getDefault().post(gson.fromJson(message,Commands.ClassSWT.class));
                         break;
                     case "wt":
-                        //Log.i(TAG, jsonObject.toString());
-
                         EventBus.getDefault().post(gson.fromJson(message, Commands.ClassWT.class));
-
                         break;
                 }
             }
@@ -118,12 +109,6 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
         }
     }
 
-    /*@Override
-    public void write(String data) throws Exception {
-        //s.append('\r').append('\n');
-        clientWebSocket.send(data);
-    }*/
-
     @Override
     public ObjectCommand sendCommand(String cmd) {
         try {
@@ -131,18 +116,6 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //write("{'cmd':'"+cmd+"'}");
-        /*response = new ResponseCommand(cmd);
-        for (int i = 0; i < 500; i++) {
-            try { TimeUnit.MILLISECONDS.sleep(1);} catch (InterruptedException e) {e.printStackTrace();}
-            try {
-                if (response.isResponse()) {
-                    return new ObjectCommand(Commands.GET_WT,"");
-                }
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
-        }*/
         return null;
     }
 }

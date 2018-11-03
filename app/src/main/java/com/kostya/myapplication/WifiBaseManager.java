@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -170,16 +171,13 @@ public class WifiBaseManager {
         @Override
         public void onReceive(Context context, Intent intent) {
             /* Получаем результат сканирования сети.*/
-            List<ScanResult> scanResultList = wifiManager.getScanResults();
+            List<ScanResult> scanResultList = Objects.requireNonNull(wifiManager).getScanResults();
             try {
-                String security = null;
                 boolean found = false;
                 /* Сравниваем результат с конктетной сетью. */
                 for (ScanResult scanResult : scanResultList) {
                     /* Если верно то конкретная сеть есть в сети.*/
                     if (scanResult.SSID.equals(Main.SSID)) {
-                        /* Получаем тип безопасности сети. */
-                        security = getScanResultSecurity(scanResult);
                         /* Флаг конкретная сеть в сети. */
                         found = true;
                         break; // found don't need continue
@@ -206,22 +204,6 @@ public class WifiBaseManager {
                             wifiManager.saveConfiguration();
                         }
                     }
-                    /*conf.SSID = '"' + Main.SSID + '"';
-                    switch (security) {
-                        case WEP:
-                            conf.wepKeys[0] = '"' + pass + '"';
-                            conf.wepTxKeyIndex = 0;
-                            conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                            break;
-                        case PSK:
-                            conf.preSharedKey = '"' + pass + '"';
-                            break;
-                        case OPEN:
-                            conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                            break;
-                        default:
-                    }*/
                     /* Удаляем регистрацию приемника. */
                     try {connectionReceiver.unregister();} catch (Exception e) {} // do nothing
                     /* Регестрируем приемник заново. */
@@ -230,19 +212,12 @@ public class WifiBaseManager {
                     intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
                     intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
                     connectionReceiver.register(intentFilter);
-                    /* Если нет то добавляем конкретную сеть в список конфигураций. */
-                    if(!isConfigNet){
-                        conf.networkId = wifiManager.addNetwork(conf);
+                    /* Если есть конфигурация тогда соеденяемся. */
+                    if(isConfigNet){
+                        wifiManager.disconnect();
+                        wifiManager.enableNetwork(conf.networkId, true);
+                        wifiManager.reconnect();
                     }
-                    int netId = wifiManager.updateNetwork(conf);
-                    /* Ошибка добавления конфигурации сети. */
-                    if(netId == -1)
-                        return;
-                    /* Сохраняем конфиругацию и перезапускаем сеть. */
-                    wifiManager.saveConfiguration();
-                    wifiManager.disconnect();
-                    wifiManager.enableNetwork(netId, true);
-                    wifiManager.reconnect();
                     /* Удаляем регистрацию приемника. */
                     unregister();
                     return; /* Выходим после реконекта. */
@@ -278,8 +253,8 @@ public class WifiBaseManager {
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            NetworkInfo networkInfo = Objects.requireNonNull(cm).getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            WifiInfo wifiInfo = Objects.requireNonNull(wifiManager).getConnectionInfo();
             /* Проверяем событие соединение с конкретной сетью. */
             if (networkInfo.isConnected() && wifiInfo.getSSID().replace("\"", "").equals(Main.SSID)) {
                 /* Если верно удаляем приемник сообщений. */
@@ -402,7 +377,7 @@ public class WifiBaseManager {
                         /* Запускаем приемник на прием события результат сканирования.*/
                         scanWifiReceiver.register();
                         /* Запускаем сканирование сети. */
-                        wifiManager.startScan();
+                        Objects.requireNonNull(wifiManager).startScan();
                         Log.i(TAG, "Разьединение с сетью " + Main.SSID);
                     }
                     break;

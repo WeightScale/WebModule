@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         if(EventBus.getDefault().hasSubscriberForEvent(Commands.ClassWT.class)){
             Log.i("Event", event.command);
         }
+        try {Thread.sleep(10);} catch (InterruptedException e) {}
         Commands.WT.getParam();
         handler.postDelayed(checkGetWeightRunable, 5000);
         //Log.i("Event", event.command);
