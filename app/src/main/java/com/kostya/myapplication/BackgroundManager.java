@@ -20,6 +20,7 @@ public class BackgroundManager implements Application.ActivityLifecycleCallbacks
     public interface Listener {
         void onBecameForeground();
         void onBecameBackground();
+        void onBecameDestroy();
     }
 
     private boolean mInBackground = true;
@@ -101,17 +102,35 @@ public class BackgroundManager implements Application.ActivityLifecycleCallbacks
     }
 
     @Override
-    public void onActivityStopped(Activity activity) {}
+    public void onActivityStopped(Activity activity) {
+        if (activity instanceof ActivityCalibration){
+            notifyOnBecameForeground();
+        }
+    }
 
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {}
 
     @Override
-    public void onActivityStarted(Activity activity) {}
+    public void onActivityStarted(Activity activity) {
+        if (activity instanceof ActivityCalibration){
+            notifyOnBecameBackground();
+        }
+    }
 
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
 
     @Override
-    public void onActivityDestroyed(Activity activity) {}
+    public void onActivityDestroyed(Activity activity) {
+        if(activity instanceof MainActivity){
+            for (Listener listener : listeners) {
+                try {
+                    listener.onBecameDestroy();
+                } catch (Exception e) {
+                    Log.e(LOG, "Listener threw exception!" + e);
+                }
+            }
+        }
+    }
 }

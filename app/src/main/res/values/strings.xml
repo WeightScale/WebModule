@@ -5,7 +5,8 @@
     <string name="Close">Close</string>
     <string name="error_code">Неверный код</string>
     <string name="KEY_NET">com.konst.KEY_NET</string>
-    <string name="KEY_HOST">com.kostya.KEY_HOST</string>
+    <string name="KEY_SSID">com.kostya.module.KEY_SSID</string>
+    <string name="KEY_HOST">com.kostya.module.KEY_HOST</string>
     <string name="KEY_IP">com.konst.KEY_IP</string>
     <string name="KEY_MASK">com.konst.KEY_MASK</string>
     <string name="KEY_GATEWAY">com.konst.KEY_GATEWAY</string>

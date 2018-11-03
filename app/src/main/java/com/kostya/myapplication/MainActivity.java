@@ -57,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
                 //Commands.WT.getParam();
                 //webScalesClient.sendCommand(Commands.GET_WT.getParam());
                 startActivity(new Intent(getApplicationContext(), com.kostya.myapplication.preferences.ActivityProperties.class));
-                try {
+                /*try {
                    run("settings.json");
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
 
             }
         });
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void run(String v) throws Exception {
         Request request = new Request.Builder()
-                .url("http://" + hostAdsdress.getHostAddress() + "/" + v)
+                .url("http://" + Main.HOST + "/" + v)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -153,10 +153,10 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
     }
 
-    @Subscribe(sticky = true)
+    /*@Subscribe(sticky = true)
     public void onEvent(InetAddress event) {
         hostAdsdress = event;
-    }
+    }*/
 
     @Subscribe
     public void onEvent(Commands.ClassSWT event) {

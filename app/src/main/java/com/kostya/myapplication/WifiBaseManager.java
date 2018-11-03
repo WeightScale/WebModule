@@ -36,7 +36,7 @@ public class WifiBaseManager {
     /** Порт соединения с сервером. Зарезервирован для весов. */
     //private static final int PORT = 1011;
     private static final int PORT = 80;
-    private String ssid = ""/*, pass = ""*/;
+    //private String ssid = ""/*, pass = ""*/;
     private static final String TAG = WifiBaseManager.class.getName();
     private static final String PSK = "PSK";
     private static final String WEP = "WEP";
@@ -47,19 +47,18 @@ public class WifiBaseManager {
          * @param ssid Имя Сети
          * @param ipAddress Адресс сервера.
          */
-        void onConnect(String ssid, InetSocketAddress ipAddress);
+        void onWiFiConnect(String ssid, InetSocketAddress ipAddress);
 
         /** Событие рассоединение с конкретной сетью. */
-        void onDisconnect();
+        void onWiFiDisconnect();
     }
 
     /** Конструктор.
      * @param context Контекст программы.
      * @param listener Слушатель событий соединения.
      */
-    public WifiBaseManager(Context context, String ssid, /*String key,*/ OnWifiBaseManagerListener listener){
+    public WifiBaseManager(Context context, /*String ssid, String key,*/ OnWifiBaseManagerListener listener){
         this.context = context;
-        this.ssid = ssid;
         //pass = key;
         onWifiBaseManagerListener = listener;
         wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -77,13 +76,13 @@ public class WifiBaseManager {
         supplicantDisconnectReceiver.register();
         try {
             inetSocketAddress = getInetAddressServer(PORT);
-            onWifiBaseManagerListener.onConnect(ssid, inetSocketAddress);
+            onWifiBaseManagerListener.onWiFiConnect(Main.SSID, inetSocketAddress);
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
     }
 
-    public void setSsid(String ssid) {this.ssid = ssid;}
+    //public void setSsid(String ssid) {this.ssid = ssid;}
 
     //public void setPass(String pass) {this.pass = pass;}
 
@@ -107,7 +106,7 @@ public class WifiBaseManager {
         try {
             /* Проверяем сеть на соединение и имя конкретной сети.
               Если верно то вызываем обратный вызов  и запускаем приемник на событие disconnect.  */
-            if (networkInfo.isConnected() && wifiInfo.getSSID().replace("\"", "").equals(ssid)) {
+            if (networkInfo.isConnected() && wifiInfo.getSSID().replace("\"", "").equals(Main.SSID)) {
                 onAttachNetwork();
                 return;
             }else {
@@ -178,7 +177,7 @@ public class WifiBaseManager {
                 /* Сравниваем результат с конктетной сетью. */
                 for (ScanResult scanResult : scanResultList) {
                     /* Если верно то конкретная сеть есть в сети.*/
-                    if (scanResult.SSID.equals(ssid)) {
+                    if (scanResult.SSID.equals(Main.SSID)) {
                         /* Получаем тип безопасности сети. */
                         security = getScanResultSecurity(scanResult);
                         /* Флаг конкретная сеть в сети. */
@@ -194,7 +193,7 @@ public class WifiBaseManager {
                     for (WifiConfiguration wifiConfiguration : list){
                         try {
                             /* Если конкретная сеть есть в конфигурациях. */
-                            if (wifiConfiguration.SSID.replace("\"", "").equals(ssid)){
+                            if (wifiConfiguration.SSID.replace("\"", "").equals(Main.SSID)){
                                 /* сохраняем конфигурацию во временный переменную.*/
                                 conf = wifiConfiguration;
                                 /* Флаг конкретная сеть есть в конфигурациях.*/
@@ -207,8 +206,8 @@ public class WifiBaseManager {
                             wifiManager.saveConfiguration();
                         }
                     }
-                    conf.SSID = '"' + ssid + '"';
-                    /*switch (security) {
+                    /*conf.SSID = '"' + Main.SSID + '"';
+                    switch (security) {
                         case WEP:
                             conf.wepKeys[0] = '"' + pass + '"';
                             conf.wepTxKeyIndex = 0;
@@ -282,7 +281,7 @@ public class WifiBaseManager {
             NetworkInfo networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             /* Проверяем событие соединение с конкретной сетью. */
-            if (networkInfo.isConnected() && wifiInfo.getSSID().replace("\"", "").equals(ssid)) {
+            if (networkInfo.isConnected() && wifiInfo.getSSID().replace("\"", "").equals(Main.SSID)) {
                 /* Если верно удаляем приемник сообщений. */
                 unregister();
                 /* Посылаем событие соединение. */
@@ -397,14 +396,14 @@ public class WifiBaseManager {
                     SupplicantState state = intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE);
                     /* Если событие disconnect. */
                     if (state == SupplicantState.DISCONNECTED){
-                        onWifiBaseManagerListener.onDisconnect();
+                        onWifiBaseManagerListener.onWiFiDisconnect();
                         /* Удаляем приемник сообщений. */
                         unregister();
                         /* Запускаем приемник на прием события результат сканирования.*/
                         scanWifiReceiver.register();
                         /* Запускаем сканирование сети. */
                         wifiManager.startScan();
-                        Log.i(TAG, "Разьединение с сетью " + ssid);
+                        Log.i(TAG, "Разьединение с сетью " + Main.SSID);
                     }
                     break;
                 default:

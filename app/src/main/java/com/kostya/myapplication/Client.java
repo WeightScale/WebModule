@@ -36,6 +36,7 @@ public class Client{
     private String host;
     private WebSocket ws;
     private static final int TIME_OUT_CONNECT = 5000; /** Время в милисекундах. */
+    private static final int TIME_PING_INTERVAL = 5000;
     private static final String TAG = "Websocket";
 
     //public abstract void killWorkingThread();
@@ -57,23 +58,24 @@ public class Client{
 
 
     void connect() {
-        new Thread(() -> {
-
-            if (ws != null) {
-                reconnect();
-            } else {
-                try {
-                    WebSocketFactory factory = new WebSocketFactory().setConnectionTimeout(TIME_OUT_CONNECT);
-                    SSLContext context = NaiveSSLContext.getInstance("TLS");
-                    factory.setSSLContext(context);
-                    ws = factory.createSocket(host);
-                    ws.addListener(new SocketListener());
-                    ws.setMissingCloseFrameAllowed(true);
-                    ws.setPingInterval(5000);
-                    ws.setPingSenderName("Scales");
-                    ws.connect();
-                } catch (WebSocketException | IOException | NoSuchAlgorithmException e) {
-                    //EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.ERROR, e.toString()));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (ws != null) {
+                    reconnect();
+                } else {
+                    try {
+                        WebSocketFactory factory = new WebSocketFactory().setConnectionTimeout(TIME_OUT_CONNECT);
+                        //SSLContext context = NaiveSSLContext.getInstance("TLS");
+                        //factory.setSSLContext(context);
+                        ws = factory.createSocket(host);
+                        ws.addListener(new SocketListener());
+                        //ws.setMissingCloseFrameAllowed(true);
+                        //ws.setPingSenderName("Scales");
+                        ws.connectAsynchronously();
+                    } catch (IOException /*| NoSuchAlgorithmException*/ e) {
+                        //EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.ERROR, e.toString()));
+                    }
                 }
             }
         }).start();
@@ -110,13 +112,23 @@ public class Client{
     public class SocketListener extends WebSocketAdapter {
 
         @Override
+        public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
+            super.onConnectError(websocket, exception);
+        }
+
+        @Override
         public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
             super.onConnected(websocket, headers);
             InetAddress uri = websocket.getSocket().getInetAddress();
-            EventBus.getDefault().postSticky(uri);
-            EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.CONNECT, "Connected"));
-            //WebScalesClient.Cmd.WT.getParam();
-            //Log.i(TAG, "onConnected");
+            //EventBus.getDefault().removeStickyEvent(InetAddress.class);
+            //EventBus.getDefault().postSticky(uri);
+            if (!uri.getHostAddress().equals(Main.HOST)){
+                Main.HOST = uri.getHostAddress();
+                ws.disconnect(10);
+            }else {
+                EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.CONNECT, "Connected"));
+                ws.setPingInterval(TIME_PING_INTERVAL);
+            }
         }
 
         public void onTextMessage(WebSocket websocket, String message) throws Exception {
@@ -139,6 +151,7 @@ public class Client{
             super.onDisconnected(websocket,serverCloseFrame,clientCloseFrame,closedByServer);
             //Log.i(TAG, "onDisconnected");
             //EventBus.getDefault().post(new MessageEventSocket(MessageEventSocket.Message.DISCONNECT, "Disconnected"));
+            ws.setPingInterval(0);
             if (closedByServer) {
                 reconnect();
             }

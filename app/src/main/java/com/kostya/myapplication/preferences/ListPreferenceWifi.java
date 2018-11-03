@@ -21,23 +21,24 @@ import android.widget.ListAdapter;
 
 import com.kostya.myapplication.R;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by Kostya on 26.06.2016.
  */
 public class ListPreferenceWifi extends ListPreference {
-    WifiManager wifiManager;
-    private int mClickedDialogEntryIndex;
-    List<WifiConfiguration> list;
-    List<ScanResult> scanResultList;
+    private WifiManager wifiManager;
+    private String mClickedDialogEntryName;
+    //List<WifiConfiguration> list;
+    private List<ScanResult> scanResultList;
 
 
     public ListPreferenceWifi(Context context, AttributeSet attrs) {
         super(context, attrs);
         //WifiConfiguration wifiConfiguration = new WifiConfiguration();
         wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        list = wifiManager.getConfiguredNetworks();
+        //list = wifiManager.getConfiguredNetworks();
 
         /*entries = new CharSequence[list.size()];
         entryValues = new CharSequence[list.size()];
@@ -51,31 +52,31 @@ public class ListPreferenceWifi extends ListPreference {
         setEntryValues(entryValues);*/
         setPersistent(true);
 
-        mClickedDialogEntryIndex = getPersistedInt(0);
+        mClickedDialogEntryName =  getPersistedString("default");
     }
 
     @Override
     protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        int value = restoreValue? getPersistedInt(mClickedDialogEntryIndex) : (Integer) defaultValue;
+        String value = restoreValue? getPersistedString(mClickedDialogEntryName) : (String) defaultValue;
         setValue(value);
     }
 
     @Override
     protected void onDialogClosed(boolean positiveResult) {
-       if (positiveResult && mClickedDialogEntryIndex >= 0 /*&& entryValues != null*/) {
-           ScanResult value = scanResultList.get(mClickedDialogEntryIndex);
-            if (callChangeListener(value)) {
-                setValue(mClickedDialogEntryIndex);
+       if (positiveResult && !mClickedDialogEntryName.isEmpty() /*&& entryValues != null*/) {
+           //ScanResult value = scanResultList.get(mClickedDialogEntryName);
+            if (callChangeListener(mClickedDialogEntryName)) {
+                setValue(mClickedDialogEntryName);
             }
         }
     }
 
-    public void setValue(int value) {
+    public void setValue(String value) {
         if (shouldPersist()) {
-            persistInt(value);
+            persistString(value);
         }
-        if (value != mClickedDialogEntryIndex) {
-            mClickedDialogEntryIndex = value;
+        if (!value.equals(mClickedDialogEntryName)) {
+            mClickedDialogEntryName = value;
             notifyChanged();
         }
     }
@@ -89,12 +90,19 @@ public class ListPreferenceWifi extends ListPreference {
     protected void onPrepareDialogBuilder( AlertDialog.Builder builder ){
         scanResultList = wifiManager.getScanResults();
         final ListAdapter adapter = new ConfigurationAdapter(getContext(), R.layout.item_list_sender, scanResultList);
-
-        builder.setSingleChoiceItems(adapter, mClickedDialogEntryIndex, new DialogInterface.OnClickListener(){
+        int index = -1;
+        for (int i = 0; i < scanResultList.size(); i++){
+            if (scanResultList.get(i).SSID.replace("\"","").equals(mClickedDialogEntryName)){
+                index = i;
+                break;
+            }
+        }   
+        builder.setSingleChoiceItems(adapter, index, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which ){
                 long l = adapter.getItemId( which );
-                setValue(which);
+                String s = scanResultList.get(which).SSID.replace("\"","");
+                setValue(s);
 
                     /*if (mClickedDialogEntryIndex != which) {
                         mClickedDialogEntryIndex = which;
@@ -135,9 +143,10 @@ public class ListPreferenceWifi extends ListPreference {
                 view = layoutInflater.inflate(R.layout.item_list_sender, parent, false);
             }
 
-            ScanResult p = getItem(position);
+            ScanResult result = getItem(position);
             CheckedTextView textView = (CheckedTextView) view.findViewById(R.id.text1);
-            textView.setText(p.SSID.replace("\"",""));
+            assert result != null;
+            textView.setText(result.SSID.replace("\"",""));
             //WifiConfiguration wc = list.get(mClickedDialogEntryIndex);
             //ScanResult wc = scanResultList.get(mClickedDialogEntryIndex);
             /*if (wc.networkId == p.networkId){

@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class WebScalesClient implements Client.MessageListener, InterfaceModule{
     private Client clientWebSocket;
     private Context context;
+    private Settings settings;
 
     public Gson gson;
     private Handler socketConnectionHandler;
@@ -33,9 +34,9 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
 
     public WebScalesClient(Context context) {
         this.context = context;
+        settings = new Settings(context/*, Main.SETTINGS*/);
         socketConnectionHandler = new Handler();
-        gson = new GsonBuilder()
-                .create();
+        gson = new GsonBuilder().create();
     }
 
     private void startCheckConnection() {
@@ -72,7 +73,7 @@ public class WebScalesClient implements Client.MessageListener, InterfaceModule{
             clientWebSocket.close();
         try {
             //clientWebSocket = new Client(this, BuildConfig.SOCKET_URL + Preferences.getManager().getUserId());
-            clientWebSocket = new Client(this, "scales");
+            clientWebSocket = new Client(this, Main.HOST);
             clientWebSocket.connect();
             //Log.i("Websocket", "Socket connected by user " + Preferences.getManager().getUserId());
             Log.i("Websocket", "Socket connected by user " + "192.168.1.8");

@@ -25,7 +25,7 @@
             android:dependency="@string/KEY_STATIC_IP"/>
         <com.kostya.myapplication.preferences.ListPreferenceWifi
             android:summary="Сеть подключения по умолчанию. При открытии приложение беднт соединятся с указаной сетью."
-            android:title="СЕТЬ:" android:key="@string/KEY_NET"/>
+            android:title="СЕТЬ:" android:key="@string/KEY_SSID"/>
         <EditTextPreference
             android:gravity="center"
             android:key="@string/KEY_HOST"

@@ -10,9 +10,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.kostya.myapplication.Main;
 import com.kostya.myapplication.R;
 
 import java.util.List;
+import java.util.Objects;
 
 public class FragmentSettingsNet extends PreferenceFragment {
 
@@ -71,7 +73,7 @@ public class FragmentSettingsNet extends PreferenceFragment {
                 });
             }
         },
-        NET(R.string.KEY_NET){
+        NET(R.string.KEY_SSID){
             @Override
             void setup(Preference name) throws Exception {
                 final Context mContext = name.getContext();
@@ -87,16 +89,22 @@ public class FragmentSettingsNet extends PreferenceFragment {
                             name.setTitle("ИМЯ СЕТИ: " + "???");
                             return false;
                         }
-                        String netName = ((ScanResult)o).SSID.replace("\"","");
-                        //String netId = String.valueOf(((WifiConfiguration)o).networkId);
-                        name.setTitle("ИМЯ СЕТИ: " + netName);
-                        return true;
+                        if (!o.toString().equals(Main.SSID)){
+                            Main.SSID = o.toString();
+                            WifiManager wifi =  (WifiManager) mContext.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                            if (wifi != null) {
+                                wifi.setWifiEnabled(false);
+                            }
+                            name.setTitle("ИМЯ СЕТИ: " + Main.SSID);
+                            return  true;
+                        }
+                        return false;
                     }
                 });
             }
 
             String getNameOfId(Context context, int id){
-                List<WifiConfiguration> list = ((WifiManager)context.getApplicationContext().getSystemService(Context.WIFI_SERVICE)).getConfiguredNetworks();
+                List<WifiConfiguration> list = ((WifiManager)Objects.requireNonNull(context.getApplicationContext().getSystemService(Context.WIFI_SERVICE))).getConfiguredNetworks();
                 for (WifiConfiguration wifiConfiguration : list){
                     if (wifiConfiguration.networkId == id){
                         return  wifiConfiguration.SSID.replace("\"", "");

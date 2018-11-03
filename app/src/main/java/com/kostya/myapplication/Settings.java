@@ -11,10 +11,10 @@ public class Settings {
     private SharedPreferences.Editor editor;
     public static final String SETTINGS = Settings.class.getName() + ".SETTINGS"; //Имя настроек
 
-    public Settings(Context context, String name) {
+    /*public Settings(Context context, String name) {
         mContext = context;
         load(mContext.getSharedPreferences(name, Context.MODE_PRIVATE)); //загрузить настройки
-    }
+    }*/
 
     public Settings(Context context) {
         mContext = context;

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/dauth_requsertext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="The server requires a username and password."
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"/>
+
+
+    <RelativeLayout
+        android:id="@+id/dauth_centercontainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+        <TextView
+            android:id="@+id/dauth_usertext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"/>
+        <TextView
+            android:id="@+id/dauth_passtext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Password"
+            android:layout_below="@+id/dauth_usertext"
+            android:layout_alignLeft="@+id/dauth_usertext"
+            android:layout_alignStart="@+id/dauth_usertext"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dauth_userinput"
+            android:ems="12"
+            android:layout_alignBottom="@+id/dauth_usertext"
+            android:layout_toRightOf="@id/dauth_usertext"
+            android:layout_toEndOf="@id/dauth_usertext"/>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dauth_passinput"
+            android:layout_marginTop="20dp"
+            android:inputType="textPassword"
+            android:ems="12"
+            android:layout_alignBottom="@+id/dauth_passtext"
+            android:layout_toRightOf="@id/dauth_passtext"
+            android:layout_toEndOf="@id/dauth_passtext"
+            android:layout_alignLeft="@id/dauth_userinput"
+            android:layout_alignStart="@id/dauth_userinput"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/dauth_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="250dp"
+        android:layout_marginRight="250dp"
+        android:layout_marginBottom="64dp"
+        android:text="Cancel" />
+
+
+    <Button
+        android:id="@+id/dauth_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/dauth_centercontainer"
+        android:layout_alignParentBottom="true"
+        android:text="Log In" />
+
+
+
+</RelativeLayout>
